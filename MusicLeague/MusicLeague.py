@@ -1,6 +1,6 @@
 from redbot.core import commands
 
-class MyCog(commands.Cog):
+class MusicLeague(commands.Cog):
     """My custom cog"""
 
     def __init__(self, bot):
