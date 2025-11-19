@@ -1,0 +1,126 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: trusty-cogs\n"
+"POT-Creation-Date: 2022-11-14 17:12+0000\n"
+"PO-Revision-Date: 2023-05-10 16:09\n"
+"Last-Translator: \n"
+"Language-Team: French\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: redgettext 3.4.2\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Crowdin-Project: trusty-cogs\n"
+"X-Crowdin-Project-ID: 510866\n"
+"X-Crowdin-Language: fr\n"
+"X-Crowdin-File: /dpy-2.0/hue/locales/messages.pot\n"
+"X-Crowdin-File-ID: 602\n"
+"Language: fr_FR\n"
+
+#: hue/hue.py:57
+#, docstring
+msgid "Commands for interacting with Hue lights"
+msgstr ""
+
+#: hue/hue.py:63
+#, docstring
+msgid "Commands for setting hue settings"
+msgstr ""
+
+#: hue/hue.py:68
+#, docstring
+msgid "Testing"
+msgstr ""
+
+#: hue/hue.py:84
+#, docstring
+msgid "Setup command if bridge cannot connect"
+msgstr ""
+
+#: hue/hue.py:108
+#, docstring
+msgid "\n"
+"        Sets the brightness for lights\n\n"
+"        `brightness` the level of brightness to set\n"
+"        `name` the name of the light to adjust\n"
+"        "
+msgstr ""
+
+#: hue/hue.py:128
+#, docstring
+msgid "\n"
+"        Sets the colour temperature for lights\n\n"
+"        `ct` must be a number the colour temperature to set\n"
+"        `name` the name of the light to adjust\n"
+"        "
+msgstr ""
+
+#: hue/hue.py:148
+#, docstring
+msgid "\n"
+"        Sets the light to a random colour\n\n"
+"        `name` the name of the light to adjust\n"
+"        "
+msgstr ""
+
+#: hue/hue.py:165
+#, docstring
+msgid "Sets the colour for lights"
+msgstr ""
+
+#: hue/hue.py:181
+#, docstring
+msgid "\n"
+"        Sets the colour using RGB colour coordinates\n\n"
+"        `red` must be a number the red value to set\n"
+"        `green` must be a number the green value to set\n"
+"        `blue` must be a number the blue value to set\n"
+"        `name` the name of the light to adjust\n"
+"        "
+msgstr ""
+
+#: hue/hue.py:203
+#, docstring
+msgid "\n"
+"        Sets the colour using xyz colour values\n\n"
+"        `x` must be a number the x value to set\n"
+"        `y` must be a number the y value to set\n"
+"        `name` the name of the light to adjust\n"
+"        Note: The z value is determined from two other values\n"
+"        "
+msgstr ""
+
+#: hue/hue.py:223
+#, docstring
+msgid "\n"
+"        Attempt to set the colour based on hex values\n"
+"        Not 100% accurate\n\n"
+"        `hex` the hex code colour to try to change to\n"
+"        `name` the name of the light to adjust\n"
+"        "
+msgstr ""
+
+#: hue/hue.py:242
+#, docstring
+msgid "\n"
+"        Toggles lights on or off\n\n"
+"        `name` the name of the light to adjust\n"
+"        "
+msgstr ""
+
+#: hue/hue.py:258
+#, docstring
+msgid "\n"
+"        Turns off light\n\n"
+"        `name` the name of the light to adjust\n"
+"        "
+msgstr ""
+
+#: hue/hue.py:274
+#, docstring
+msgid "\n"
+"        Turns on Light\n\n"
+"        `name` the name of the light to adjust\n"
+"        "
+msgstr ""
+

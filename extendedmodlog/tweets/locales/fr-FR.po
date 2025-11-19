@@ -1,0 +1,284 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: trusty-cogs\n"
+"POT-Creation-Date: 2022-11-08 17:13+0000\n"
+"PO-Revision-Date: 2023-05-10 16:09\n"
+"Last-Translator: \n"
+"Language-Team: French\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: redgettext 3.4.2\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Crowdin-Project: trusty-cogs\n"
+"X-Crowdin-Project-ID: 510866\n"
+"X-Crowdin-Language: fr\n"
+"X-Crowdin-File: /dpy-2.0/tweets/locales/messages.pot\n"
+"X-Crowdin-File-ID: 638\n"
+"Language: fr_FR\n"
+
+#: tweets/menus.py:236
+msgid "You liked the tweet!"
+msgstr ""
+
+#: tweets/menus.py:253
+msgid "You retweeted the tweet!"
+msgstr ""
+
+#: tweets/menus.py:272
+msgid "Reply to tweet"
+msgstr ""
+
+#: tweets/menus.py:277
+msgid "Reply"
+msgstr ""
+
+#: tweets/menus.py:278
+msgid "Add another Tweet"
+msgstr ""
+
+#: tweets/menus.py:284
+msgid "Following"
+msgstr ""
+
+#: tweets/menus.py:285
+msgid "Everyone"
+msgstr ""
+
+#: tweets/menus.py:288
+msgid "Reply settings"
+msgstr ""
+
+#: tweets/menus.py:305 tweets/tweets.py:134
+msgid "Tweet sent!"
+msgstr ""
+
+#: tweets/menus.py:492
+msgid "No twitter account with that username could be found."
+msgstr ""
+
+#: tweets/menus.py:499 tweets/menus.py:529
+msgid "This tweet is labeled as NSFW and this is not a NSFW channel."
+msgstr ""
+
+#: tweets/menus.py:518
+msgid "No twitter information could be found for {username}."
+msgstr ""
+
+#: tweets/menus.py:552 tweets/menus.py:642
+msgid "You are not authorized to interact with this."
+msgstr ""
+
+#: tweets/tweets.py:22
+#, docstring
+msgid "\n"
+"    Cog for displaying info from Twitter's API\n"
+"    "
+msgstr ""
+
+#: tweets/tweets.py:111
+#, docstring
+msgid "Controls for the twitter stream"
+msgstr ""
+
+#: tweets/tweets.py:116
+#, docstring
+msgid "Delete your saved authentication data from the bot"
+msgstr ""
+
+#: tweets/tweets.py:118
+msgid "Your saved twitter authenication has been deleted."
+msgstr ""
+
+#: tweets/tweets.py:122
+#, docstring
+msgid "\n"
+"        Allows the owner to send tweets through discord\n"
+"        "
+msgstr ""
+
+#: tweets/tweets.py:132
+msgid "An error has occured trying to send that tweet."
+msgstr ""
+
+#: tweets/tweets.py:151
+#, docstring
+msgid "Get info about the specified user"
+msgstr ""
+
+#: tweets/tweets.py:165
+msgid "{username} could not be found."
+msgstr ""
+
+#: tweets/tweets.py:196
+#, docstring
+msgid "\n"
+"        Display a users tweets as a scrollable message\n"
+"        "
+msgstr ""
+
+#: tweets/tweets.py:213 tweets/tweets.py:301
+#, docstring
+msgid "\n"
+"        Add a twitter username to follow in a channel.\n\n"
+"        Note: This may not work if the username is not present in one of the stream rules.\n"
+"        You can view existing rules with `[p]tweets stream rules`\n"
+"        "
+msgstr ""
+
+#: tweets/tweets.py:222 tweets/tweets.py:310
+msgid "I could not find a user named `{username}`."
+msgstr ""
+
+#: tweets/tweets.py:231
+msgid "Following tweets from {user} in {channel}."
+msgstr ""
+
+#: tweets/tweets.py:241
+#, docstring
+msgid "\n"
+"        Add all tweets from a specific stream rule to a channel.\n"
+"        "
+msgstr ""
+
+#: tweets/tweets.py:249
+msgid "Following tweets from {rule} in {channel}."
+msgstr ""
+
+#: tweets/tweets.py:259
+#, docstring
+msgid "\n"
+"        Remove all tweets from a specific stream rule to a channel.\n"
+"        "
+msgstr ""
+
+#: tweets/tweets.py:267
+msgid "Unfollowing tweets from {rule} in {channel}."
+msgstr ""
+
+#: tweets/tweets.py:275
+#, docstring
+msgid "\n"
+"        Toggle whether or not to apply like, retweet, and reply buttons to the channels\n"
+"        twitter stream\n\n"
+"        `<channel>` The channel you want to toggle buttons for.\n"
+"        "
+msgstr ""
+
+#: tweets/tweets.py:285
+msgid "Like, retweet, and reply buttons disabled in {channel}."
+msgstr ""
+
+#: tweets/tweets.py:291
+msgid "Like, retweet, and reply buttons enabled in {channel}."
+msgstr ""
+
+#: tweets/tweets.py:320
+msgid "Tweets from {user} are not being followed in {channel}"
+msgstr ""
+
+#: tweets/tweets.py:326
+msgid "Unfollowing tweets from {user} in {channel}."
+msgstr ""
+
+#: tweets/tweets.py:333
+#, docstring
+msgid "List the current stream rules"
+msgstr ""
+
+#: tweets/tweets.py:338
+msgid "The stream has not been setup yet, make sure the bot owner has setup their API tokens properly."
+msgstr ""
+
+#: tweets/tweets.py:344
+msgid "No rules have been created yet."
+msgstr ""
+
+#: tweets/tweets.py:355
+#, docstring
+msgid "\n"
+"        Create a stream rule\n\n"
+"        `<tag>` The name of the rule for finding the rule later.\n"
+"        `<rule>` The Filtered stream rule. Information about rules can be found here\n"
+"        https://developer.twitter.com/en/docs/twitter-api/tweets/filtered-stream/integrate/build-a-rule\n"
+"        "
+msgstr ""
+
+#: tweets/tweets.py:365
+msgid "Rule created successfully."
+msgstr ""
+
+#: tweets/tweets.py:367 tweets/tweets.py:390 tweets/tweets.py:401
+msgid "There was an issue with that rule.\n"
+msgstr ""
+
+#: tweets/tweets.py:376
+#, docstring
+msgid "\n"
+"        Delete a stream rule\n\n"
+"        `<tag_or_id>` The rule tag or rule ID you want to delete.\n"
+"        "
+msgstr ""
+
+#: tweets/tweets.py:388 tweets/tweets.py:399
+msgid "Rule {tag} deleted.\n"
+msgstr ""
+
+#: tweets/tweets.py:414
+#, docstring
+msgid "How to get and set your twitter API tokens."
+msgstr ""
+
+#: tweets/tweets.py:415
+msgid "1. Visit https://apps.twitter.com and apply for a developer account.\n"
+"2. Once your account is approved Create a Project\n"
+"3. Add an app to the project and copy the **Bearer Token** (Optionally) Copy the **Client ID** and **Client Secret**4. Under User authentication settings enable OAuth 2.0, customize the settings however you want the bot to work, and remember or set the redirect uri.\n\n"
+"5. Do `[p]set api twitter bearer_token YOUR_BEARER_TOKEN client_id YOUR_CLIENT_ID client_secret YOUR_CLIENT_SECRET redirect_uri YOUR_REDIRECT_URI_TOKEN`\n\n"
+msgstr ""
+
+#: tweets/tweets_api.py:79
+msgid "You need to set your API tokens. See `{prefix}tweetset creds` for information on how."
+msgstr ""
+
+#: tweets/tweets_api.py:173
+msgid "A tweet stream error has occured! - {error_title} - {error_details} - {link_info}"
+msgstr ""
+
+#: tweets/tweets_api.py:210
+msgid "A tweet stream error has occured! "
+msgstr ""
+
+#: tweets/tweets_api.py:222
+msgid "The Tweet stream has disconnected."
+msgstr ""
+
+#: tweets/tweets_api.py:325
+msgid "Please accept the authorization [here]({auth}) and **DM me** with the final full url."
+msgstr ""
+
+#: tweets/tweets_api.py:331
+msgid "Please accept the authorization in the following link and reply to me with the full url\n\n"
+" {auth}"
+msgstr ""
+
+#: tweets/tweets_api.py:360 tweets/tweets_api.py:369
+msgid "Alright I won't interact with twitter for you."
+msgstr ""
+
+#: tweets/tweets_api.py:414
+msgid "\n"
+" See here for more information <https://developer.twitter.com/en/support/twitter-api/error-troubleshooting>"
+msgstr ""
+
+#: tweets/tweets_api.py:419
+msgid "You're being rate limited. Maybe you should unload the cog for a while..."
+msgstr ""
+
+#: tweets/tweets_api.py:502
+msgid "Replying to {user}"
+msgstr ""
+
+#: tweets/tweets_api.py:504
+msgid "Retweeted {user}"
+msgstr ""
+
