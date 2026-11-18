@@ -4,7 +4,7 @@
     "end_user_data_statement": "This cog currently does not persistently store end user data. Update this statement if future features add data storage.",
     "hidden": false,
     "disabled": false,
-    "install_msg": "Thanks for installing MusicLeague. This cog is under development and its functionality is not complete.",
+    "install_msg": "Thanks for installing MusicLeague. Use `/musicleague` to see its current status. This cog is under development.",
     "min_bot_version": "3.5.0",
     "name": "MusicLeague",
     "requirements": [],

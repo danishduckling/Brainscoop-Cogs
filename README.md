@@ -28,7 +28,7 @@ its Git URL.
 
 | Package | Status | Notes |
 | --- | --- | --- |
-| `MusicLeague` | Under development | Server-specific cog scaffold; its functionality is not complete. |
+| `MusicLeague` | Under development | Server-specific cog scaffold; `/musicleague` provides an ephemeral status response. |
 | `extendedmodlog` | Fork | Modified from [TrustyJAID/Trusty-cogs](https://github.com/TrustyJAID/Trusty-cogs/tree/master/extendedmodlog). The upstream authors and license are retained. |
 
 Installing a cog does not mean it is feature-complete. Check its cog information
