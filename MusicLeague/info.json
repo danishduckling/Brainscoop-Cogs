@@ -1,10 +1,10 @@
 {
     "author": ["The Brain Scoop Community"],
-    "description": "A server-specific Music League cog for The Brain Scoop Discord community. This cog is under development and its functionality is not complete.",
-    "end_user_data_statement": "This cog currently does not persistently store end user data. Update this statement if future features add data storage.",
+    "description": "A server-specific Music League game for The Brain Scoop Discord community. Members submit music links to a playlist managed by the bot; the cog is under development.",
+    "end_user_data_statement": "This cog stores submitters' Discord user IDs, song titles, and links in the server's bot-managed playlist. The data is included in user data exports and removed through Red's user data deletion process.",
     "hidden": false,
     "disabled": false,
-    "install_msg": "Thanks for installing MusicLeague. Use `/musicleague` to see its current status. This cog is under development.",
+    "install_msg": "Thanks for installing MusicLeague. Use `/musicleague submit` to add a song and `/musicleague playlist` to view the server playlist. This cog is under development.",
     "min_bot_version": "3.5.0",
     "name": "MusicLeague",
     "requirements": [],
