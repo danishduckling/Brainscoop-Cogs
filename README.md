@@ -28,7 +28,7 @@ its Git URL.
 
 | Package | Status | Notes |
 | --- | --- | --- |
-| `MusicLeague` | Under development | Bot-managed weekly playlists with `/musicleague submit`, `/musicleague playlist`, `/musicleague vote`, `/musicleague unvote`, and `/musicleague myvotes`; players cannot vote for their own entries. Admins configure the schedule time zone and announcement channel. Music services are link sources only. The schedule defaults to UTC. |
+| `MusicLeague` | Under development | Bot-managed weekly playlists with `/musicleague submit`, `/musicleague playlist`, `/musicleague vote`, `/musicleague unvote`, `/musicleague myvotes`, and `/musicleague prompt`; the previous round's winner sets the prompt for the following round. Players cannot vote for their own entries. Admins configure the schedule time zone and announcement channel. Music services are link sources only. The schedule defaults to UTC. |
 | `extendedmodlog` | Fork | Modified from [TrustyJAID/Trusty-cogs](https://github.com/TrustyJAID/Trusty-cogs/tree/master/extendedmodlog). The upstream authors and license are retained. |
 
 Installing a cog does not mean it is feature-complete. Check its cog information

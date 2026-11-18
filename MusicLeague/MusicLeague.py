@@ -44,8 +44,14 @@ class MusicLeague(commands.Cog):
         async with guild_config.rounds() as rounds:
             current_round = rounds.setdefault(
                 week_start,
-                {"announced_phase": None, "submissions": [], "votes": {}},
+                {
+                    "announced_phase": None,
+                    "prompt": None,
+                    "submissions": [],
+                    "votes": {},
+                },
             )
+            current_round.setdefault("prompt", None)
             current_round.setdefault("votes", {})
             if legacy_submissions:
                 existing_user_ids = {
@@ -83,11 +89,29 @@ class MusicLeague(commands.Cog):
         if current_round.get("announced_phase") == phase:
             return True
 
+        allowed_mentions = discord.AllowedMentions.none()
         if phase == "submissions":
             message = (
                 f"The Music League playlist for the week of {week_start} is open "
                 f"for submissions ({timezone_name}). Use `/musicleague submit`."
             )
+            prompt = current_round.get("prompt")
+            if prompt:
+                message += f"\nThis week's prompt: {discord.utils.escape_markdown(prompt)}"
+
+            current_week = datetime.strptime(week_start, "%Y-%m-%d").date()
+            previous_week_start = (current_week - timedelta(days=7)).isoformat()
+            previous_round = rounds.get(previous_week_start, {})
+            winner_user_id = previous_round.get("winner_user_id")
+            if winner_user_id is not None:
+                next_week_start = (current_week + timedelta(days=7)).isoformat()
+                message += (
+                    f"\n<@{winner_user_id}>, choose the prompt for the week of "
+                    f"{next_week_start} with `/musicleague prompt`."
+                )
+                allowed_mentions = discord.AllowedMentions(
+                    users=[discord.Object(id=winner_user_id)]
+                )
         else:
             message = (
                 f"Voting is open for the Music League playlist for the week of "
@@ -97,7 +121,7 @@ class MusicLeague(commands.Cog):
         try:
             await channel.send(
                 message,
-                allowed_mentions=discord.AllowedMentions.none(),
+                allowed_mentions=allowed_mentions,
             )
         except discord.Forbidden:
             LOGGER.error(
@@ -254,6 +278,58 @@ class MusicLeague(commands.Cog):
         ]
         for page in pagify("\n\n".join(entries), page_length=1900):
             await ctx.send(page, allowed_mentions=discord.AllowedMentions.none())
+
+    @musicleague.command()
+    async def prompt(self, ctx, *, prompt: str):
+        """Set the prompt for the round after next if you won the previous round."""
+        prompt = prompt.strip()
+        if not prompt:
+            await ctx.send("Enter a prompt.", ephemeral=ctx.interaction is not None)
+            return
+        if len(prompt) > 500:
+            await ctx.send(
+                "Prompts must be 500 characters or fewer.",
+                ephemeral=ctx.interaction is not None,
+            )
+            return
+
+        week_start, _, _ = await self._get_weekly_state(ctx.guild)
+        current_week = datetime.strptime(week_start, "%Y-%m-%d").date()
+        previous_week_start = (current_week - timedelta(days=7)).isoformat()
+        target_week_start = (current_week + timedelta(days=7)).isoformat()
+        guild_config = self.config.guild(ctx.guild)
+        error = None
+        response = None
+
+        async with guild_config.rounds() as rounds:
+            previous_round = rounds.get(previous_week_start)
+            winner_user_id = (
+                previous_round.get("winner_user_id") if previous_round else None
+            )
+            if winner_user_id is None:
+                error = "The previous round's winner hasn't been recorded yet."
+            elif winner_user_id != ctx.author.id:
+                error = "Only the previous round's winner can choose this prompt."
+            else:
+                target_round = rounds.setdefault(
+                    target_week_start,
+                    {
+                        "announced_phase": None,
+                        "prompt": None,
+                        "submissions": [],
+                        "votes": {},
+                    },
+                )
+                target_round["prompt"] = prompt
+                target_round["prompt_author_id"] = ctx.author.id
+                response = f"Prompt set for the week of {target_week_start}."
+
+        if error is not None:
+            await ctx.send(error, ephemeral=ctx.interaction is not None)
+        elif response is not None:
+            await ctx.send(response, ephemeral=ctx.interaction is not None)
+        else:
+            raise RuntimeError("Prompt command did not produce a response.")
 
     @musicleague.command()
     async def vote(self, ctx, song_number: int, points: int):
@@ -425,6 +501,14 @@ class MusicLeague(commands.Cog):
                             "votes": ballot,
                         }
                     )
+                if round_data.get("prompt_author_id") == user_id:
+                    user_data.append(
+                        {
+                            "guild_id": guild_id,
+                            "week_start": week_start,
+                            "prompt": round_data["prompt"],
+                        }
+                    )
             legacy_submissions = await guild_config.submissions()
             user_data.extend(
                 {"guild_id": guild_id, "week_start": None, **song}
@@ -451,6 +535,9 @@ class MusicLeague(commands.Cog):
                     votes.pop(str(user_id), None)
                     for ballot in votes.values():
                         ballot.pop(str(user_id), None)
+                    if round_data.get("prompt_author_id") == user_id:
+                        round_data.pop("prompt", None)
+                        round_data.pop("prompt_author_id", None)
             async with guild_config.submissions() as submissions:
                 submissions[:] = [
                     song for song in submissions if song["user_id"] != user_id
