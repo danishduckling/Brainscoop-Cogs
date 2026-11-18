@@ -282,17 +282,26 @@ class MusicLeague(commands.Cog):
             else:
                 song_user_id = str(submissions[song_number - 1]["user_id"])
                 voter_id = str(ctx.author.id)
-                ballot = current_round.setdefault("votes", {}).setdefault(voter_id, {})
-                existing_points = ballot.get(song_user_id, 0)
-                total_points = sum(ballot.values()) - existing_points + points
-                if total_points > 7:
-                    error = "Your ballot cannot exceed 7 total points."
+                if song_user_id == voter_id:
+                    error = "You can't vote for your own submission."
                 else:
-                    ballot[song_user_id] = points
-                    if total_points == 7:
-                        response = "Vote saved. Your ballot is complete (7/7)."
+                    ballot = current_round.setdefault("votes", {}).setdefault(
+                        voter_id,
+                        {},
+                    )
+                    existing_points = ballot.get(song_user_id, 0)
+                    total_points = sum(ballot.values()) - existing_points + points
+                    if total_points > 7:
+                        error = "Your ballot cannot exceed 7 total points."
                     else:
-                        response = f"Vote saved. You have {total_points}/7 points allocated."
+                        ballot[song_user_id] = points
+                        if total_points == 7:
+                            response = "Vote saved. Your ballot is complete (7/7)."
+                        else:
+                            response = (
+                                f"Vote saved. You have {total_points}/7 "
+                                "points allocated."
+                            )
 
         if error is not None:
             await ctx.send(error, ephemeral=True)
