@@ -1,8 +1,8 @@
 {
-    "author" : ["yourname (discord#identifer)"],
-    "install_msg" : "Message the user will recieve when they agree to install your repository.",
-    "name" : "Name of your repository.",
-    "short" : "Short description of your repo.",
-    "description" : "Long description about your repository.",
-    "tags" : ["List of search tags on red portal for your repo."]
+    "author": ["The Brain Scoop Community"],
+    "install_msg": "Thanks for adding the Brain Scoop Cogs repository! See the README for installation instructions and the status of each cog.",
+    "name": "Brain Scoop Cogs",
+    "short": "Cogs developed or adapted for The Brain Scoop Discord community.",
+    "description": "A collection of Red cogs developed specifically for The Brain Scoop Discord server, along with selected cogs adapted from other projects.",
+    "tags": ["brainscoop", "community", "moderation", "music"]
 }

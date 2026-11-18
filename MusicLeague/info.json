@@ -1,8 +1,14 @@
 {
-    "author" : ["yourname (discord#identifer)"],
-    "install_msg" : "Message the user will recieve when they agree to install your repository.",
-    "name" : "Name of your repository.",
-    "short" : "Short description of your repo.",
-    "description" : "Long description about your repository.",
-    "tags" : ["List of search tags on red portal for your repo."]
+    "author": ["The Brain Scoop Community"],
+    "description": "A server-specific Music League cog for The Brain Scoop Discord community. This cog is under development and its functionality is not complete.",
+    "end_user_data_statement": "This cog currently does not persistently store end user data. Update this statement if future features add data storage.",
+    "hidden": false,
+    "disabled": false,
+    "install_msg": "Thanks for installing MusicLeague. This cog is under development and its functionality is not complete.",
+    "min_bot_version": "3.5.0",
+    "name": "MusicLeague",
+    "requirements": [],
+    "short": "Server-specific Music League integration (under development).",
+    "tags": ["music", "musicleague", "brainscoop"],
+    "type": "COG"
 }
