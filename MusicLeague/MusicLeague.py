@@ -44,8 +44,9 @@ class MusicLeague(commands.Cog):
         async with guild_config.rounds() as rounds:
             current_round = rounds.setdefault(
                 week_start,
-                {"announced_phase": None, "submissions": []},
+                {"announced_phase": None, "submissions": [], "votes": {}},
             )
+            current_round.setdefault("votes", {})
             if legacy_submissions:
                 existing_user_ids = {
                     song["user_id"] for song in current_round["submissions"]
@@ -179,6 +180,10 @@ class MusicLeague(commands.Cog):
     @musicleague.command()
     async def submit(self, ctx, title: str, url: str):
         """Submit or replace your song during the submission phase."""
+        if ctx.interaction is None:
+            await ctx.send("Use the slash command to submit your song privately.")
+            return
+
         title = title.strip()
         url = url.strip()
         try:
@@ -250,6 +255,138 @@ class MusicLeague(commands.Cog):
         for page in pagify("\n\n".join(entries), page_length=1900):
             await ctx.send(page, allowed_mentions=discord.AllowedMentions.none())
 
+    @musicleague.command()
+    async def vote(self, ctx, song_number: int, points: int):
+        """Allocate 1 to 3 points to a song in the current playlist."""
+        if ctx.interaction is None:
+            await ctx.send("Use the slash command to keep your ballot private.")
+            return
+
+        week_start, phase, _ = await self._get_weekly_state(ctx.guild)
+        if phase != "voting":
+            await ctx.send(
+                "Voting is only open Wednesday through Saturday.",
+                ephemeral=ctx.interaction is not None,
+            )
+            return
+
+        error = None
+        response = None
+        async with self.config.guild(ctx.guild).rounds() as rounds:
+            current_round = rounds[week_start]
+            submissions = current_round["submissions"]
+            if song_number < 1 or song_number > len(submissions):
+                error = "Choose a song number from the current playlist."
+            elif points not in {1, 2, 3}:
+                error = "Each song can receive 1, 2, or 3 points."
+            else:
+                song_user_id = str(submissions[song_number - 1]["user_id"])
+                voter_id = str(ctx.author.id)
+                ballot = current_round.setdefault("votes", {}).setdefault(voter_id, {})
+                existing_points = ballot.get(song_user_id, 0)
+                total_points = sum(ballot.values()) - existing_points + points
+                if total_points > 7:
+                    error = "Your ballot cannot exceed 7 total points."
+                else:
+                    ballot[song_user_id] = points
+                    if total_points == 7:
+                        response = "Vote saved. Your ballot is complete (7/7)."
+                    else:
+                        response = f"Vote saved. You have {total_points}/7 points allocated."
+
+        if error is not None:
+            await ctx.send(error, ephemeral=True)
+        elif response is not None:
+            await ctx.send(response, ephemeral=True)
+        else:
+            raise RuntimeError("Vote command did not produce a response.")
+
+    @musicleague.command()
+    async def unvote(self, ctx, song_number: int):
+        """Remove your points from a song in the current ballot."""
+        if ctx.interaction is None:
+            await ctx.send("Use the slash command to keep your ballot private.")
+            return
+
+        week_start, phase, _ = await self._get_weekly_state(ctx.guild)
+        if phase != "voting":
+            await ctx.send(
+                "Voting is only open Wednesday through Saturday.",
+                ephemeral=ctx.interaction is not None,
+            )
+            return
+
+        error = None
+        response = None
+        async with self.config.guild(ctx.guild).rounds() as rounds:
+            current_round = rounds[week_start]
+            submissions = current_round["submissions"]
+            if song_number < 1 or song_number > len(submissions):
+                error = "Choose a song number from the current playlist."
+            else:
+                song_user_id = str(submissions[song_number - 1]["user_id"])
+                ballot = current_round.setdefault("votes", {}).get(
+                    str(ctx.author.id),
+                    {},
+                )
+                if song_user_id not in ballot:
+                    error = "You haven't voted for that song."
+                else:
+                    del ballot[song_user_id]
+                    if not ballot:
+                        current_round["votes"].pop(str(ctx.author.id), None)
+                    total_points = sum(ballot.values())
+                    response = (
+                        f"Vote removed. You have {total_points}/7 points allocated."
+                    )
+
+        if error is not None:
+            await ctx.send(error, ephemeral=True)
+        elif response is not None:
+            await ctx.send(response, ephemeral=True)
+        else:
+            raise RuntimeError("Unvote command did not produce a response.")
+
+    @musicleague.command()
+    async def myvotes(self, ctx):
+        """Privately show your current ballot and point total."""
+        if ctx.interaction is None:
+            await ctx.send("Use the slash command to view your ballot privately.")
+            return
+
+        week_start, phase, _ = await self._get_weekly_state(ctx.guild)
+        if phase != "voting":
+            await ctx.send(
+                "Voting is only open Wednesday through Saturday.",
+                ephemeral=True,
+            )
+            return
+
+        rounds = await self.config.guild(ctx.guild).rounds()
+        current_round = rounds[week_start]
+        submissions = {
+            str(song["user_id"]): song for song in current_round["submissions"]
+        }
+        ballot = current_round.get("votes", {}).get(str(ctx.author.id), {})
+        if not ballot:
+            await ctx.send(
+                "You haven't allocated any points yet (0/7).",
+                ephemeral=True,
+            )
+            return
+
+        lines = [
+            f"{discord.utils.escape_markdown(submissions[song_user_id]['title'])}: "
+            f"{points} point{'s' if points != 1 else ''}"
+            for song_user_id, points in ballot.items()
+            if song_user_id in submissions
+        ]
+        total_points = sum(ballot.values())
+        await ctx.send(
+            f"Your ballot ({total_points}/7):\n" + "\n".join(lines),
+            ephemeral=True,
+        )
+
     @tasks.loop(minutes=15)
     async def weekly_schedule(self):
         for guild in self.bot.guilds:
@@ -260,27 +397,36 @@ class MusicLeague(commands.Cog):
         await self.bot.wait_until_ready()
 
     async def red_get_data_for_user(self, *, user_id: int):
-        submissions = []
+        user_data = []
         for guild_id in await self.config.all_guilds():
             guild_config = self.config.guild_from_id(guild_id)
             rounds = await guild_config.rounds()
             for week_start, round_data in rounds.items():
-                submissions.extend(
+                user_data.extend(
                     {"guild_id": guild_id, "week_start": week_start, **song}
                     for song in round_data["submissions"]
                     if song["user_id"] == user_id
                 )
+                ballot = round_data.get("votes", {}).get(str(user_id))
+                if ballot:
+                    user_data.append(
+                        {
+                            "guild_id": guild_id,
+                            "week_start": week_start,
+                            "votes": ballot,
+                        }
+                    )
             legacy_submissions = await guild_config.submissions()
-            submissions.extend(
+            user_data.extend(
                 {"guild_id": guild_id, "week_start": None, **song}
                 for song in legacy_submissions
                 if song["user_id"] == user_id
             )
 
-        if not submissions:
+        if not user_data:
             return {}
-        data = json.dumps(submissions, indent=2).encode("utf-8")
-        return {"music_league_submissions.json": BytesIO(data)}
+        data = json.dumps(user_data, indent=2).encode("utf-8")
+        return {"music_league_data.json": BytesIO(data)}
 
     async def red_delete_data_for_user(self, *, requester: str, user_id: int) -> None:
         for guild_id in await self.config.all_guilds():
@@ -292,6 +438,10 @@ class MusicLeague(commands.Cog):
                         for song in round_data["submissions"]
                         if song["user_id"] != user_id
                     ]
+                    votes = round_data.setdefault("votes", {})
+                    votes.pop(str(user_id), None)
+                    for ballot in votes.values():
+                        ballot.pop(str(user_id), None)
             async with guild_config.submissions() as submissions:
                 submissions[:] = [
                     song for song in submissions if song["user_id"] != user_id
