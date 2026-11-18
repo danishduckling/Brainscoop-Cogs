@@ -4,7 +4,7 @@
     "end_user_data_statement": "This cog stores submitters' and voters' Discord user IDs, song titles, music links, vote allocations, and winning prompt suggestions in the server's weekly playlists. The data is included in user data exports and removed through Red's user data deletion process.",
     "hidden": false,
     "disabled": false,
-    "install_msg": "Thanks for installing MusicLeague. Admins can set the schedule time zone with `/musicleague timezone` and announcement channel with `/musicleague channel`. Use `/musicleague submit`, `/musicleague playlist`, `/musicleague vote`, `/musicleague unvote`, `/musicleague myvotes`, and `/musicleague prompt` to play. This cog is under development.",
+    "install_msg": "Thanks for installing MusicLeague. Admins can set the schedule time zone with `/musicleague timezone` and announcement channel with `/musicleague channel`. Use `/musicleague submit`, `/musicleague playlist`, `/musicleague vote`, `/musicleague unvote`, `/musicleague myvotes`, `/musicleague scoreboard`, and `/musicleague prompt` to play. This cog is under development.",
     "min_bot_version": "3.5.0",
     "name": "MusicLeague",
     "requirements": ["pytz"],

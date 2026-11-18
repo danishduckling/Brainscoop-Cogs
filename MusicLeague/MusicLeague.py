@@ -68,6 +68,31 @@ class MusicLeague(commands.Cog):
 
         return week_start, phase, timezone_name
 
+    @staticmethod
+    def _get_round_scores(round_data):
+        scores = {
+            str(song["user_id"]): 0
+            for song in round_data.get("submissions", [])
+        }
+        for voter_id, ballot in round_data.get("votes", {}).items():
+            voter_id = str(voter_id)
+            for song_user_id, points in ballot.items():
+                if song_user_id in scores and song_user_id != voter_id:
+                    scores[song_user_id] += points
+        return scores
+
+    @classmethod
+    def _get_round_winners(cls, round_data):
+        scores = cls._get_round_scores(round_data)
+        highest_score = max(scores.values(), default=0)
+        if highest_score == 0:
+            return []
+        return [
+            int(user_id)
+            for user_id, score in scores.items()
+            if score == highest_score
+        ]
+
     async def _announce_phase(self, guild):
         week_start, phase, timezone_name = await self._get_weekly_state(guild)
         guild_config = self.config.guild(guild)
@@ -101,16 +126,24 @@ class MusicLeague(commands.Cog):
 
             current_week = datetime.strptime(week_start, "%Y-%m-%d").date()
             previous_week_start = (current_week - timedelta(days=7)).isoformat()
-            previous_round = rounds.get(previous_week_start, {})
-            winner_user_id = previous_round.get("winner_user_id")
-            if winner_user_id is not None:
+            previous_round = rounds.get(previous_week_start)
+            winner_user_ids = (
+                self._get_round_winners(previous_round) if previous_round else []
+            )
+            if winner_user_ids:
                 next_week_start = (current_week + timedelta(days=7)).isoformat()
+                winner_mentions = ", ".join(
+                    f"<@{winner_user_id}>" for winner_user_id in winner_user_ids
+                )
                 message += (
-                    f"\n<@{winner_user_id}>, choose the prompt for the week of "
-                    f"{next_week_start} with `/musicleague prompt`."
+                    f"\nLast week's winner(s): {winner_mentions}. Choose the prompt "
+                    f"for the week of {next_week_start} with `/musicleague prompt`."
                 )
                 allowed_mentions = discord.AllowedMentions(
-                    users=[discord.Object(id=winner_user_id)]
+                    users=[
+                        discord.Object(id=winner_user_id)
+                        for winner_user_id in winner_user_ids
+                    ]
                 )
         else:
             message = (
@@ -119,10 +152,8 @@ class MusicLeague(commands.Cog):
             )
 
         try:
-            await channel.send(
-                message,
-                allowed_mentions=allowed_mentions,
-            )
+            for page in pagify(message, page_length=1900):
+                await channel.send(page, allowed_mentions=allowed_mentions)
         except discord.Forbidden:
             LOGGER.error(
                 "Cannot post Music League announcements in channel %s for guild %s",
@@ -280,6 +311,53 @@ class MusicLeague(commands.Cog):
             await ctx.send(page, allowed_mentions=discord.AllowedMentions.none())
 
     @musicleague.command()
+    async def scoreboard(self, ctx):
+        """Show the scores for the previous completed round."""
+        week_start, _, _ = await self._get_weekly_state(ctx.guild)
+        current_week = datetime.strptime(week_start, "%Y-%m-%d").date()
+        completed_week_start = (current_week - timedelta(days=7)).isoformat()
+        rounds = await self.config.guild(ctx.guild).rounds()
+        completed_round = rounds.get(completed_week_start)
+        if not completed_round or not completed_round["submissions"]:
+            await ctx.send(
+                "There are no completed Music League results yet.",
+                ephemeral=ctx.interaction is not None,
+            )
+            return
+
+        scores = self._get_round_scores(completed_round)
+        ranked_songs = sorted(
+            completed_round["submissions"],
+            key=lambda song: scores[str(song["user_id"])],
+            reverse=True,
+        )
+        entries = [
+            f"**{scores[str(song['user_id'])]} "
+            f"point{'s' if scores[str(song['user_id'])] != 1 else ''}** - "
+            f"{discord.utils.escape_markdown(song['title'])}"
+            for song in ranked_songs
+        ]
+        winners = self._get_round_winners(completed_round)
+        if winners:
+            winner_list = ", ".join(f"<@{winner_id}>" for winner_id in winners)
+            header = (
+                f"Results for the week of {completed_week_start}. "
+                f"Winner(s): {winner_list}\n"
+            )
+        else:
+            header = (
+                f"Results for the week of {completed_week_start}. "
+                "No votes were cast.\n"
+            )
+
+        for page in pagify(header + "\n".join(entries), page_length=1900):
+            await ctx.send(
+                page,
+                ephemeral=ctx.interaction is not None,
+                allowed_mentions=discord.AllowedMentions.none(),
+            )
+
+    @musicleague.command()
     async def prompt(self, ctx, *, prompt: str):
         """Set the prompt for the round after next if you won the previous round."""
         prompt = prompt.strip()
@@ -303,13 +381,13 @@ class MusicLeague(commands.Cog):
 
         async with guild_config.rounds() as rounds:
             previous_round = rounds.get(previous_week_start)
-            winner_user_id = (
-                previous_round.get("winner_user_id") if previous_round else None
+            winner_user_ids = (
+                self._get_round_winners(previous_round) if previous_round else []
             )
-            if winner_user_id is None:
-                error = "The previous round's winner hasn't been recorded yet."
-            elif winner_user_id != ctx.author.id:
-                error = "Only the previous round's winner can choose this prompt."
+            if not winner_user_ids:
+                error = "The previous round has no scored winner yet."
+            elif ctx.author.id not in winner_user_ids:
+                error = "Only a winner of the previous round can choose this prompt."
             else:
                 target_round = rounds.setdefault(
                     target_week_start,
@@ -320,9 +398,16 @@ class MusicLeague(commands.Cog):
                         "votes": {},
                     },
                 )
-                target_round["prompt"] = prompt
-                target_round["prompt_author_id"] = ctx.author.id
-                response = f"Prompt set for the week of {target_week_start}."
+                prompt_author_id = target_round.get("prompt_author_id")
+                if (
+                    prompt_author_id is not None
+                    and prompt_author_id != ctx.author.id
+                ):
+                    error = "Another tied winner has already set this prompt."
+                else:
+                    target_round["prompt"] = prompt
+                    target_round["prompt_author_id"] = ctx.author.id
+                    response = f"Prompt set for the week of {target_week_start}."
 
         if error is not None:
             await ctx.send(error, ephemeral=ctx.interaction is not None)
